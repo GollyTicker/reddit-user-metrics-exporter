@@ -1,0 +1,18 @@
+services:
+  reddit-user-metrics:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    image: reddit-user-metrics:v1
+    container_name: reddit-user-trf # port 8080
+    env_file:
+      - .env
+    # Uncomment this to view locally
+    # ports:
+    #   - 8080:8080
+    networks:
+      - reddit-user-metrics-net
+
+networks:
+  reddit-user-metrics-net:
+    name: reddit-user-metrics-net
