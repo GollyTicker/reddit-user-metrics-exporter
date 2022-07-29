@@ -1,6 +1,7 @@
-import datetime
 from prometheus_client import Gauge
 import reddit
+
+from logger import logger
 
 reddit_user_link_karma = Gauge(
     "reddit_user_link_karma",
@@ -26,8 +27,8 @@ def get_latest_user_metrics():
         reddit_user_link_karma.labels(name).set(link_karma)
         reddit_user_comment_karma.labels(name).set(comment_karma)
 
-        print(
-            f"{datetime.datetime.now()} Retrieved: /u/{name}, {link_karma} link-karma, {comment_karma} comment-karma")
+        logger.info(
+            f"Retrieved: /u/{name}, {link_karma} link-karma, {comment_karma} comment-karma")
 
     except Exception as e:
-        print(f"{datetime.datetime.now()} ERROR: {e}")
+        logger.error(f"ERROR: {e}")

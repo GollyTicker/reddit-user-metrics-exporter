@@ -5,29 +5,28 @@ import prometheus_client
 import os
 import metrics
 
+# I would like to not use a logging library and simply log to stdout, but
+# the output seems to be completely dropped - even before the scheduler.start() statement is reached!
+# Weird interaction. It very much seemed like a bug, but maybe it was misconfiguration.
+from logger import logger
 
 if "CRONTAB_SCHEDULE" not in os.environ:
-    print("Please provide a CRONTAB_SCHEDULE. Aborting.")
+    logger.error("Please provide a CRONTAB_SCHEDULE. Aborting.")
     exit(1)
 
 CRONTAB_SCHEDULE = os.environ["CRONTAB_SCHEDULE"]
 
 if __name__ == "__main__":
-    print("Getting metrics once initially...")
-    print(metrics)
+    logger.info("Getting metrics once initially...")
     metrics.get_latest_user_metrics()
 
-    print("Starting server at port:", 8080)
+    logger.info(f"Starting server at port: {8080}")
     prometheus_client.start_http_server(8080)
 
-    print("Scheduling to update metrics according to crontab schedule:",
-          CRONTAB_SCHEDULE)
+    logger.info(
+        f"Scheduling to update metrics according to crontab schedule: {CRONTAB_SCHEDULE}")
     scheduler = BlockingScheduler()
     cron_triggerer = CronTrigger.from_crontab(CRONTAB_SCHEDULE)
     scheduler.add_job(metrics.get_latest_user_metrics, cron_triggerer)
-    try:
-        # TODO. docker seems to freeze, when this line is here.
-        scheduler.start()
-        # this is weird, because docker hangs even before this line is reached!
-    except (KeyboardInterrupt, SystemExit):
-        pass
+
+    scheduler.start()
