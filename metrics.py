@@ -1,7 +1,13 @@
-from prometheus_client import Gauge
+from prometheus_client import Gauge, REGISTRY
 import reddit
 
 from logger import logger
+
+# Unregister default collected process and platform metrics which we are not interested in.
+# https://github.com/prometheus/client_python/issues/414
+for coll in list(REGISTRY._collector_to_names.keys()):
+    REGISTRY.unregister(coll)
+
 
 reddit_user_link_karma = Gauge(
     "reddit_user_link_karma",
